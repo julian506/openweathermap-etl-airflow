@@ -26,7 +26,7 @@ def getLogger() -> logging.Logger:
 
 def exceptionLog(message: str) -> Exception:
     logger: logging.Logger = getLogger()
-    logger.exception(message)
+    logger.exception(message+'...')
     raise Exception(message)
 
 

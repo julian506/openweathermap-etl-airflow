@@ -1,8 +1,6 @@
 from typing import Any
-import requests
-import os
 from utils import env_variables, requests_handler, logs
-
+from dotenv import load_dotenv
 
 def getCoordinatesByZipCode(API_BASE_URL: str, API_KEY: str) -> dict[str, int]:
     ZIP_CODE: str = env_variables.readEnvVariable("ZIP_CODE")
@@ -27,7 +25,8 @@ def getCoordinatesByZipCode(API_BASE_URL: str, API_KEY: str) -> dict[str, int]:
         )
 
 
-def extractCurrentWeatherData() -> dict[str, Any]:
+def extractCurrentWeatherData(ti) -> dict[str, Any]:
+    load_dotenv()
     API_BASE_URL: str = env_variables.readEnvVariable("API_BASE_URL")
     API_KEY: str = env_variables.readEnvVariable("API_KEY")
     coordinates: dict[str, int] = getCoordinatesByZipCode(API_BASE_URL, API_KEY)
@@ -37,4 +36,5 @@ def extractCurrentWeatherData() -> dict[str, Any]:
         f"{API_BASE_URL}/data/2.5/weather?lat={LATITUDE}&lon={LONGITUDE}&appid={API_KEY}"
     )
     current_weather_data: dict[str, Any] = requests_handler.performRequest(request_url)
+    ti.xcom_push(key='current_weather_data', value=current_weather_data)
     return current_weather_data

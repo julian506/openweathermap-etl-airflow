@@ -1,12 +1,11 @@
 import urllib.parse
-import os
 import urllib
 from sqlalchemy.orm import Session
 import uuid as uuid_lib
 from sqlalchemy import create_engine, desc
 from classes.TemperatureData import TemperatureData
 from utils import env_variables, logs
-
+from dotenv import load_dotenv
 
 def isCurrentRecordNew(session, new_weather_record: TemperatureData) -> bool:
     try:
@@ -50,7 +49,9 @@ def commitDataIntoDatabase(session: Session, new_weather_record: TemperatureData
         )
 
 
-def upload_data(transformed_weather_data) -> None:
+def upload_data(ti) -> None:
+    load_dotenv()
+    transformed_weather_data = ti.xcom_pull(key='transformed_temperature_values', task_ids='transfrom_extracted_data')
     AZURE_ODBC_CONNECTION_STRING: str = env_variables.readEnvVariable(
         "AZURE_ODBC_CONNECTION_STRING"
     )
