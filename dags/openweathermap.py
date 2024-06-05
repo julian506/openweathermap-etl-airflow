@@ -1,8 +1,10 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from utils import env_variables
-from datetime import datetime, timedelta, date
+from utils import env_variables, casts
+from datetime import datetime, timedelta
 from scripts import extract, transform, load
+
+PIPELINE_EXECUTION_INTERVAL_IN_MINUTES: int = casts.strToInt(env_variables.readEnvVariable('PIPELINE_EXECUTION_INTERVAL_IN_MINUTES'))
 
 default_args = {
     "owner": "Julián Pachón Castrillón",
@@ -18,7 +20,7 @@ default_args = {
 with DAG(
     "openweathermap_dag",
     default_args=default_args,
-    schedule_interval=timedelta(minutes=5),
+    schedule_interval=timedelta(minutes=PIPELINE_EXECUTION_INTERVAL_IN_MINUTES),
     catchup=False,
 ) as dag:
     extract_current_weather_data = PythonOperator(
