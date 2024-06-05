@@ -1,7 +1,7 @@
 import datetime
 from typing import Any
 from utils import logs
-from dotenv import load_dotenv
+from airflow.decorators import task
 
 def extractTemperatureValues(data) -> dict[str, float]:
     try:
@@ -63,12 +63,10 @@ def addTimestampToData(
             "There was an error trying to add the timestamps to the celsius_temperature_values"
         )
 
-
+@task()
 def transformExtractedData(
-    ti
+    extracted_data
 ) -> dict[str, float | datetime.datetime]:
-    load_dotenv()
-    extracted_data: dict[str, Any] = ti.xcom_pull(key='current_weather_data', task_ids='extract_current_weather_data')
     temperature_values: dict[str, float] = extractTemperatureValues(extracted_data)
 
     data_utc_datetime: int = extractUtcDatetime(extracted_data)
@@ -80,5 +78,5 @@ def transformExtractedData(
     transformed_temperature_values: dict[str, float | datetime.datetime] = (
         addTimestampToData(celsius_temperature_values, data_utc_datetime)
     )
-    ti.xcom_push(key='transformed_temperature_values', value=transformed_temperature_values)
+    
     return transformed_temperature_values

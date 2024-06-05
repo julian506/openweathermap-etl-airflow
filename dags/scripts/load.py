@@ -5,7 +5,7 @@ import uuid as uuid_lib
 from sqlalchemy import create_engine, desc
 from classes.TemperatureData import TemperatureData
 from utils import env_variables, logs
-from dotenv import load_dotenv
+from airflow.decorators import task
 
 def isCurrentRecordNew(session, new_weather_record: TemperatureData) -> bool:
     try:
@@ -48,10 +48,8 @@ def commitDataIntoDatabase(session: Session, new_weather_record: TemperatureData
             "There was an error commiting the new data into the database"
         )
 
-
-def upload_data(ti) -> None:
-    load_dotenv()
-    transformed_weather_data = ti.xcom_pull(key='transformed_temperature_values', task_ids='transfrom_extracted_data')
+@task()
+def upload_data(transformed_weather_data) -> None:
     AZURE_ODBC_CONNECTION_STRING: str = env_variables.readEnvVariable(
         "AZURE_ODBC_CONNECTION_STRING"
     )
