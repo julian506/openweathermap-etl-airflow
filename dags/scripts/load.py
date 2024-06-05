@@ -1,12 +1,11 @@
 import urllib.parse
-import os
 import urllib
 from sqlalchemy.orm import Session
 import uuid as uuid_lib
 from sqlalchemy import create_engine, desc
 from classes.TemperatureData import TemperatureData
 from utils import env_variables, logs
-
+from airflow.decorators import task
 
 def isCurrentRecordNew(session, new_weather_record: TemperatureData) -> bool:
     try:
@@ -49,7 +48,7 @@ def commitDataIntoDatabase(session: Session, new_weather_record: TemperatureData
             "There was an error commiting the new data into the database"
         )
 
-
+@task()
 def upload_data(transformed_weather_data) -> None:
     AZURE_ODBC_CONNECTION_STRING: str = env_variables.readEnvVariable(
         "AZURE_ODBC_CONNECTION_STRING"

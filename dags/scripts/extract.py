@@ -1,8 +1,6 @@
 from typing import Any
-import requests
-import os
 from utils import env_variables, requests_handler, logs
-
+from airflow.decorators import task
 
 def getCoordinatesByZipCode(API_BASE_URL: str, API_KEY: str) -> dict[str, int]:
     ZIP_CODE: str = env_variables.readEnvVariable("ZIP_CODE")
@@ -26,7 +24,7 @@ def getCoordinatesByZipCode(API_BASE_URL: str, API_KEY: str) -> dict[str, int]:
             "Error trying to extract latitude and longitude according to the ZIP_CODE and the COUNTRY_CODE env variables"
         )
 
-
+@task()
 def extractCurrentWeatherData() -> dict[str, Any]:
     API_BASE_URL: str = env_variables.readEnvVariable("API_BASE_URL")
     API_KEY: str = env_variables.readEnvVariable("API_KEY")

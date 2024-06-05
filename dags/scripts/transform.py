@@ -1,7 +1,7 @@
 import datetime
 from typing import Any
 from utils import logs
-
+from airflow.decorators import task
 
 def extractTemperatureValues(data) -> dict[str, float]:
     try:
@@ -63,9 +63,9 @@ def addTimestampToData(
             "There was an error trying to add the timestamps to the celsius_temperature_values"
         )
 
-
+@task()
 def transformExtractedData(
-    extracted_data: dict[str, Any],
+    extracted_data
 ) -> dict[str, float | datetime.datetime]:
     temperature_values: dict[str, float] = extractTemperatureValues(extracted_data)
 
@@ -78,5 +78,5 @@ def transformExtractedData(
     transformed_temperature_values: dict[str, float | datetime.datetime] = (
         addTimestampToData(celsius_temperature_values, data_utc_datetime)
     )
-
+    
     return transformed_temperature_values
