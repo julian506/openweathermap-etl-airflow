@@ -6,14 +6,10 @@ WORKDIR ${AIRFLOW_HOME}
 
 COPY requirements.txt ./
 
-USER airflow
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Switch to root user to install additional packages and set permissions
+# Switch to root user to install additional packages
 USER root
 
-# Install necessary packages
+# The next packages are installed in order to connect with Azure SQL Database
 RUN apt-get update && apt-get install -y \
     curl \
     apt-transport-https \
@@ -26,3 +22,7 @@ RUN apt-get update && apt-get install -y \
     && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+
+RUN pip install --no-cache-dir -r requirements.txt
